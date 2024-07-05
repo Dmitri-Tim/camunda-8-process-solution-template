@@ -1,94 +1,122 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="8059276" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.5.0" camunda:diagramRelationId="d7b120c8-30b9-4ddc-b47a-1a66c3aaa89e">
-  <bpmn:process id="Process_03f6q82" name="katse" isExecutable="true">
+  <bpmn:process id="tehik_process" name="katse" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1" name="User enters integer">
-      <bpmn:outgoing>Flow_0obwq31</bpmn:outgoing>
+      <bpmn:outgoing>begin_fetch</bpmn:outgoing>
     </bpmn:startEvent>
+
     <bpmn:exclusiveGateway id="Gateway_1v6mfpr" name="Check if integer below min value">
       <bpmn:extensionElements />
-      <bpmn:incoming>Flow_0obwq31</bpmn:incoming>
-      <bpmn:outgoing>Flow_1vkrxd4</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1k1simf</bpmn:outgoing>
+      <bpmn:incoming>begin_first_condition</bpmn:incoming>
+      <bpmn:outgoing>automatic_accept</bpmn:outgoing>
+      <bpmn:outgoing>begin_second_condition</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_0lb0pvc" name="Automatic accept">
-      <bpmn:incoming>Flow_1vkrxd4</bpmn:incoming>
-      <bpmn:outgoing>Flow_1j2mfbd</bpmn:outgoing>
-    </bpmn:task>
+
+    <bpmn:serviceTask id="Activity_0lb0pvc" name="Automatic accept">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="acceptAutomatically" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>automatic_accept</bpmn:incoming>
+      <bpmn:outgoing>automatic_accept_message</bpmn:outgoing>
+    </bpmn:serviceTask>
     <bpmn:exclusiveGateway id="Gateway_0vfr81e" name="min value &#60;= integer &#60; max value">
-      <bpmn:incoming>Flow_1k1simf</bpmn:incoming>
-      <bpmn:outgoing>Flow_15v97ql</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0ufod0c</bpmn:outgoing>
+      <bpmn:incoming>begin_second_condition</bpmn:incoming>
+      <bpmn:outgoing>automatic_decline</bpmn:outgoing>
+      <bpmn:outgoing>begin_parallel</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_1hjmafy" name="Automatic decline">
-      <bpmn:incoming>Flow_15v97ql</bpmn:incoming>
-      <bpmn:outgoing>Flow_1nhmzx8</bpmn:outgoing>
+    <bpmn:serviceTask id="Activity_1hjmafy" name="Automatic decline">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="declineAutomatically" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>automatic_decline</bpmn:incoming>
+      <bpmn:outgoing>automatic_decline_message</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_1w6fwcw" name="End date is added">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="processProceeding" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>add_end_date</bpmn:incoming>
+      <bpmn:outgoing>check_proceeding</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:task id="Activity_07g9usg" name="Check proceeding">
+      <bpmn:incoming>check_proceeding</bpmn:incoming>
+      <bpmn:outgoing>check_for_any_over_end_date</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Activity_1w6fwcw" name="End date is added">
-      <bpmn:incoming>Flow_00lsdw8</bpmn:incoming>
-      <bpmn:outgoing>Flow_1x7np1g</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="Activity_07g9usg" name="Check menetlus">
-      <bpmn:incoming>Flow_1x7np1g</bpmn:incoming>
-      <bpmn:outgoing>Flow_1l2qjzf</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="Activity_0nb6wxk" name="Manual menetlus">
-      <bpmn:incoming>Flow_0sx1cz1</bpmn:incoming>
-      <bpmn:outgoing>Flow_0y5kl02</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:endEvent id="Event_07ly02h" name="Menetlus sent to user">
-      <bpmn:incoming>Flow_0y5kl02</bpmn:incoming>
+    <bpmn:serviceTask id="Activity_0nb6wxk" name="Manual proceeding">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="processManually" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>manual_proceeding_service</bpmn:incoming>
+      <bpmn:outgoing>manual_proceeding_send_to_user</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_07ly02h" name="Proceeding sent to user">
+      <bpmn:incoming>manual_proceeding_send_to_user</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_0obwq31" sourceRef="StartEvent_1" targetRef="Gateway_1v6mfpr" />
-    <bpmn:sequenceFlow id="Flow_1vkrxd4" sourceRef="Gateway_1v6mfpr" targetRef="Activity_0lb0pvc">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=value &lt; minValue</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="automatic_accept" sourceRef="Gateway_1v6mfpr" targetRef="Activity_0lb0pvc">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=clientNumber &lt; minNumber</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1k1simf" sourceRef="Gateway_1v6mfpr" targetRef="Gateway_0vfr81e">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=value &gt;= minValue</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="begin_second_condition" sourceRef="Gateway_1v6mfpr" targetRef="Gateway_0vfr81e">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=clientNumber &gt;= minNumber</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_15v97ql" sourceRef="Gateway_0vfr81e" targetRef="Activity_1hjmafy">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=value &gt;= maxValue</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="automatic_decline" sourceRef="Gateway_0vfr81e" targetRef="Activity_1hjmafy">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=clientNumber &gt;= maxNumber</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0ufod0c" sourceRef="Gateway_0vfr81e" targetRef="Gateway_0f3ejov">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=value = minValue or value &lt; maxValue</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="begin_parallel" sourceRef="Gateway_0vfr81e" targetRef="Gateway_0f3ejov">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=clientNumber = minNumber or clientNumber &lt; maxNumber</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_00lsdw8" sourceRef="Gateway_0f3ejov" targetRef="Activity_1w6fwcw" />
-    <bpmn:sequenceFlow id="Flow_1x7np1g" sourceRef="Activity_1w6fwcw" targetRef="Activity_07g9usg" />
+    <bpmn:sequenceFlow id="add_end_date" sourceRef="Gateway_0f3ejov" targetRef="Activity_1w6fwcw" />
+    <bpmn:sequenceFlow id="check_proceeding" sourceRef="Activity_1w6fwcw" targetRef="Activity_07g9usg" />
     <bpmn:intermediateThrowEvent id="Event_13477vx" name="Manual notification">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="whatType" retries="3" />
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0hun7df</bpmn:incoming>
-      <bpmn:outgoing>Flow_0sx1cz1</bpmn:outgoing>
+      <bpmn:incoming>manual_proceeding_throw</bpmn:incoming>
+      <bpmn:outgoing>manual_proceeding_service</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1cx0hut" />
     </bpmn:intermediateThrowEvent>
-    <bpmn:sequenceFlow id="Flow_0hun7df" sourceRef="Gateway_0f3ejov" targetRef="Event_13477vx" />
-    <bpmn:sequenceFlow id="Flow_0sx1cz1" sourceRef="Event_13477vx" targetRef="Activity_0nb6wxk" />
-    <bpmn:sequenceFlow id="Flow_0y5kl02" sourceRef="Activity_0nb6wxk" targetRef="Event_07ly02h" />
-    <bpmn:intermediateCatchEvent id="Event_1hibzmq" name="Any over end date menetlus?">
-      <bpmn:incoming>Flow_1l2qjzf</bpmn:incoming>
-      <bpmn:outgoing>Flow_1i546ok</bpmn:outgoing>
+    <bpmn:sequenceFlow id="manual_proceeding_throw" sourceRef="Gateway_0f3ejov" targetRef="Event_13477vx" />
+    <bpmn:sequenceFlow id="manual_proceeding_service" sourceRef="Event_13477vx" targetRef="Activity_0nb6wxk" />
+    <bpmn:sequenceFlow id="manual_proceeding_send_to_user" sourceRef="Activity_0nb6wxk" targetRef="Event_07ly02h" />
+    <bpmn:intermediateCatchEvent id="Event_1hibzmq" name="Any over end date proceeding?">
+      <bpmn:incoming>check_for_any_over_end_date</bpmn:incoming>
+      <bpmn:outgoing>send_notifications_over_end_date</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_04eiglv" messageRef="Message_0e7ngbs" />
     </bpmn:intermediateCatchEvent>
-    <bpmn:sequenceFlow id="Flow_1l2qjzf" sourceRef="Activity_07g9usg" targetRef="Event_1hibzmq" />
-    <bpmn:endEvent id="Event_1rtbu9w" name="Notification is added to menetlus over end date">
-      <bpmn:incoming>Flow_1i546ok</bpmn:incoming>
+    <bpmn:sequenceFlow id="check_for_any_over_end_date" sourceRef="Activity_07g9usg" targetRef="Event_1hibzmq" />
+    <bpmn:endEvent id="Event_1rtbu9w" name="Notification is added to proceeding over end date">
+      <bpmn:incoming>send_notifications_over_end_date</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_1i546ok" sourceRef="Event_1hibzmq" targetRef="Event_1rtbu9w" />
+    <bpmn:sequenceFlow id="send_notifications_over_end_date" sourceRef="Event_1hibzmq" targetRef="Event_1rtbu9w" />
     <bpmn:endEvent id="Event_1pndd0s" name="Automatic decline">
-      <bpmn:incoming>Flow_1nhmzx8</bpmn:incoming>
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="invokeMyService" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>automatic_decline_message</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0d23h9m" />
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_1nhmzx8" sourceRef="Activity_1hjmafy" targetRef="Event_1pndd0s" />
+    <bpmn:sequenceFlow id="automatic_decline_message" sourceRef="Activity_1hjmafy" targetRef="Event_1pndd0s" />
     <bpmn:endEvent id="Event_0bp6uc5" name="Automatic accept">
-      <bpmn:incoming>Flow_1j2mfbd</bpmn:incoming>
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="invokeMyService" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>automatic_accept_message</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1ro9bp7" />
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_1j2mfbd" sourceRef="Activity_0lb0pvc" targetRef="Event_0bp6uc5" />
+    <bpmn:sequenceFlow id="automatic_accept_message" sourceRef="Activity_0lb0pvc" targetRef="Event_0bp6uc5" />
     <bpmn:parallelGateway id="Gateway_0f3ejov" name="Parallel">
-      <bpmn:incoming>Flow_0ufod0c</bpmn:incoming>
-      <bpmn:outgoing>Flow_00lsdw8</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0hun7df</bpmn:outgoing>
+      <bpmn:incoming>begin_parallel</bpmn:incoming>
+      <bpmn:outgoing>add_end_date</bpmn:outgoing>
+      <bpmn:outgoing>manual_proceeding_throw</bpmn:outgoing>
     </bpmn:parallelGateway>
+    <bpmn:serviceTask id="Activity_04r25sj" name="Fetch values">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="fetchValues" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>begin_fetch</bpmn:incoming>
+      <bpmn:outgoing>begin_first_condition</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="begin_first_condition" sourceRef="Activity_04r25sj" targetRef="Gateway_1v6mfpr" />
+    <bpmn:sequenceFlow id="begin_fetch" sourceRef="StartEvent_1" targetRef="Activity_04r25sj" />
   </bpmn:process>
   <bpmn:message id="Message_0e7ngbs" name="Message_0e7ngbs">
     <bpmn:extensionElements>
@@ -98,140 +126,148 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_03f6q82">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="162" y="100" width="36" height="36" />
+        <dc:Bounds x="122" y="100" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="151" y="143" width="58" height="27" />
+          <dc:Bounds x="111" y="143" width="58" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1v6mfpr_di" bpmnElement="Gateway_1v6mfpr" isMarkerVisible="true">
-        <dc:Bounds x="285" y="93" width="50" height="50" />
+        <dc:Bounds x="375" y="93" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="271" y="63" width="79" height="27" />
+          <dc:Bounds x="361" y="63" width="79" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0lb0pvc_di" bpmnElement="Activity_0lb0pvc">
-        <dc:Bounds x="450" y="78" width="100" height="80" />
+        <dc:Bounds x="540" y="78" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0vfr81e_di" bpmnElement="Gateway_0vfr81e" isMarkerVisible="true">
-        <dc:Bounds x="285" y="225" width="50" height="50" />
+        <dc:Bounds x="375" y="225" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="196" y="240" width="68" height="40" />
+          <dc:Bounds x="286" y="240" width="68" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1hjmafy_di" bpmnElement="Activity_1hjmafy">
-        <dc:Bounds x="450" y="210" width="100" height="80" />
+        <dc:Bounds x="540" y="210" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1w6fwcw_di" bpmnElement="Activity_1w6fwcw">
-        <dc:Bounds x="450" y="350" width="100" height="80" />
+        <dc:Bounds x="540" y="350" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_07g9usg_di" bpmnElement="Activity_07g9usg">
-        <dc:Bounds x="600" y="350" width="100" height="80" />
+        <dc:Bounds x="690" y="350" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0nb6wxk_di" bpmnElement="Activity_0nb6wxk">
-        <dc:Bounds x="260" y="530" width="100" height="80" />
+        <dc:Bounds x="350" y="530" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_07ly02h_di" bpmnElement="Event_07ly02h">
-        <dc:Bounds x="292" y="652" width="36" height="36" />
+        <dc:Bounds x="382" y="652" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="270" y="695" width="81" height="27" />
+          <dc:Bounds x="360" y="695" width="81" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_13477vx_di" bpmnElement="Event_13477vx">
-        <dc:Bounds x="292" y="452" width="36" height="36" />
+        <dc:Bounds x="382" y="452" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="211" y="460" width="53" height="27" />
+          <dc:Bounds x="301" y="460" width="53" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1hibzmq_di" bpmnElement="Event_1hibzmq">
-        <dc:Bounds x="762" y="372" width="36" height="36" />
+        <dc:Bounds x="852" y="372" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="736" y="415" width="89" height="27" />
+          <dc:Bounds x="826" y="415" width="89" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1rtbu9w_di" bpmnElement="Event_1rtbu9w">
-        <dc:Bounds x="852" y="372" width="36" height="36" />
+        <dc:Bounds x="942" y="372" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="835" y="415" width="71" height="53" />
+          <dc:Bounds x="925" y="415" width="71" height="53" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1pndd0s_di" bpmnElement="Event_1pndd0s">
-        <dc:Bounds x="632" y="232" width="36" height="36" />
+        <dc:Bounds x="722" y="232" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="607" y="275" width="86" height="14" />
+          <dc:Bounds x="697" y="275" width="86" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0bp6uc5_di" bpmnElement="Event_0bp6uc5">
-        <dc:Bounds x="632" y="100" width="36" height="36" />
+        <dc:Bounds x="722" y="100" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="608" y="143" width="85" height="14" />
+          <dc:Bounds x="698" y="143" width="85" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1txaw8w_di" bpmnElement="Gateway_0f3ejov">
-        <dc:Bounds x="285" y="365" width="50" height="50" />
+        <dc:Bounds x="375" y="365" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="211" y="380" width="38" height="14" />
+          <dc:Bounds x="301" y="380" width="38" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_0obwq31_di" bpmnElement="Flow_0obwq31">
-        <di:waypoint x="198" y="118" />
-        <di:waypoint x="285" y="118" />
+      <bpmndi:BPMNShape id="Activity_04r25sj_di" bpmnElement="Activity_04r25sj">
+        <dc:Bounds x="220" y="78" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1vkrxd4_di" bpmnElement="automatic_accept">
+        <di:waypoint x="425" y="118" />
+        <di:waypoint x="540" y="118" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1vkrxd4_di" bpmnElement="Flow_1vkrxd4">
-        <di:waypoint x="335" y="118" />
-        <di:waypoint x="450" y="118" />
+      <bpmndi:BPMNEdge id="Flow_1k1simf_di" bpmnElement="begin_second_condition">
+        <di:waypoint x="400" y="143" />
+        <di:waypoint x="400" y="225" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1k1simf_di" bpmnElement="Flow_1k1simf">
-        <di:waypoint x="310" y="143" />
-        <di:waypoint x="310" y="225" />
+      <bpmndi:BPMNEdge id="Flow_15v97ql_di" bpmnElement="automatic_decline">
+        <di:waypoint x="425" y="250" />
+        <di:waypoint x="540" y="250" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_15v97ql_di" bpmnElement="Flow_15v97ql">
-        <di:waypoint x="335" y="250" />
-        <di:waypoint x="450" y="250" />
+      <bpmndi:BPMNEdge id="Flow_0ufod0c_di" bpmnElement="begin_parallel">
+        <di:waypoint x="400" y="275" />
+        <di:waypoint x="400" y="365" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0ufod0c_di" bpmnElement="Flow_0ufod0c">
-        <di:waypoint x="310" y="275" />
-        <di:waypoint x="310" y="365" />
+      <bpmndi:BPMNEdge id="Flow_00lsdw8_di" bpmnElement="add_end_date">
+        <di:waypoint x="425" y="390" />
+        <di:waypoint x="540" y="390" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_00lsdw8_di" bpmnElement="Flow_00lsdw8">
-        <di:waypoint x="335" y="390" />
-        <di:waypoint x="450" y="390" />
+      <bpmndi:BPMNEdge id="Flow_1x7np1g_di" bpmnElement="check_proceeding">
+        <di:waypoint x="640" y="390" />
+        <di:waypoint x="690" y="390" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1x7np1g_di" bpmnElement="Flow_1x7np1g">
-        <di:waypoint x="550" y="390" />
-        <di:waypoint x="600" y="390" />
+      <bpmndi:BPMNEdge id="Flow_0hun7df_di" bpmnElement="manual_proceeding_throw">
+        <di:waypoint x="400" y="415" />
+        <di:waypoint x="400" y="452" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0hun7df_di" bpmnElement="Flow_0hun7df">
-        <di:waypoint x="310" y="415" />
-        <di:waypoint x="310" y="452" />
+      <bpmndi:BPMNEdge id="Flow_0sx1cz1_di" bpmnElement="manual_proceeding_service">
+        <di:waypoint x="400" y="488" />
+        <di:waypoint x="400" y="530" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0sx1cz1_di" bpmnElement="Flow_0sx1cz1">
-        <di:waypoint x="310" y="488" />
-        <di:waypoint x="310" y="530" />
+      <bpmndi:BPMNEdge id="Flow_0y5kl02_di" bpmnElement="manual_proceeding_send_to_user">
+        <di:waypoint x="400" y="610" />
+        <di:waypoint x="400" y="652" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0y5kl02_di" bpmnElement="Flow_0y5kl02">
-        <di:waypoint x="310" y="610" />
-        <di:waypoint x="310" y="652" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1l2qjzf_di" bpmnElement="Flow_1l2qjzf">
-        <di:waypoint x="700" y="390" />
-        <di:waypoint x="762" y="390" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1i546ok_di" bpmnElement="Flow_1i546ok">
-        <di:waypoint x="798" y="390" />
+      <bpmndi:BPMNEdge id="Flow_1l2qjzf_di" bpmnElement="check_for_any_over_end_date">
+        <di:waypoint x="790" y="390" />
         <di:waypoint x="852" y="390" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1nhmzx8_di" bpmnElement="Flow_1nhmzx8">
-        <di:waypoint x="550" y="250" />
-        <di:waypoint x="632" y="250" />
+      <bpmndi:BPMNEdge id="Flow_1i546ok_di" bpmnElement="send_notifications_over_end_date">
+        <di:waypoint x="888" y="390" />
+        <di:waypoint x="942" y="390" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1j2mfbd_di" bpmnElement="Flow_1j2mfbd">
-        <di:waypoint x="550" y="118" />
-        <di:waypoint x="632" y="118" />
+      <bpmndi:BPMNEdge id="Flow_1nhmzx8_di" bpmnElement="automatic_decline_message">
+        <di:waypoint x="640" y="250" />
+        <di:waypoint x="722" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1j2mfbd_di" bpmnElement="automatic_accept_message">
+        <di:waypoint x="640" y="118" />
+        <di:waypoint x="722" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1nlo629_di" bpmnElement="begin_first_condition">
+        <di:waypoint x="320" y="118" />
+        <di:waypoint x="375" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0xv7kkk_di" bpmnElement="begin_fetch">
+        <di:waypoint x="158" y="118" />
+        <di:waypoint x="220" y="118" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

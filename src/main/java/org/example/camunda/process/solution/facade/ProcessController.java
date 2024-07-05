@@ -2,8 +2,9 @@ package org.example.camunda.process.solution.facade;
 
 import io.camunda.zeebe.client.ZeebeClient;
 import org.example.camunda.process.solution.ProcessConstants;
+import org.example.camunda.process.solution.dto.TehikUserInputDTO;
 import org.example.camunda.process.solution.variable.ProcessVariables;
-import org.example.camunda.process.solution.variable.TestVariables;
+import org.example.camunda.process.solution.variable.TehikProcessVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,58 +17,56 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/process")
 public class ProcessController {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ProcessController.class);
-  private final ZeebeClient zeebe;
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessController.class);
+    private final ZeebeClient zeebe;
 
-  public ProcessController(ZeebeClient client) {
-    this.zeebe = client;
-  }
+    public ProcessController(ZeebeClient client) {
+        this.zeebe = client;
+    }
 
-  @PostMapping("/start")
-  public void startProcessInstance(@RequestBody ProcessVariables variables) {
-
-    LOG.info(
-        "Starting process `" + ProcessConstants.BPMN_PROCESS_ID + "` with variables: " + variables);
-
-    zeebe
-        .newCreateInstanceCommand()
-        .bpmnProcessId(ProcessConstants.BPMN_PROCESS_ID)
-        .latestVersion()
-        .variables(variables)
-        .send();
-  }
-
-    @PostMapping("/start/test")
-    public void startTestProcessInstance(@RequestBody TestVariables variables) {
+    @PostMapping("/start")
+    public void startProcessInstance(@RequestBody ProcessVariables variables) {
 
         LOG.info(
                 "Starting process `" + ProcessConstants.BPMN_PROCESS_ID + "` with variables: " + variables);
 
         zeebe
                 .newCreateInstanceCommand()
-                .bpmnProcessId(ProcessConstants.CONDITIONAL_PROCESS_ID)
+                .bpmnProcessId(ProcessConstants.BPMN_PROCESS_ID)
                 .latestVersion()
                 .variables(variables)
                 .send();
     }
 
-  @PostMapping("/message/{messageName}/{correlationKey}")
-  public void publishMessage(
-      @PathVariable String messageName,
-      @PathVariable String correlationKey,
-      @RequestBody ProcessVariables variables) {
+    @PostMapping("/start/test")
+    public void startTestProcessInstance(@RequestBody TehikUserInputDTO userInputDTO) {
+        TehikProcessVariables processVariables = new TehikProcessVariables()
+                .setUserNumber(userInputDTO.getUserNumber());
+        zeebe
+                .newCreateInstanceCommand()
+                .bpmnProcessId(ProcessConstants.TEHIK_PROCESS_ID)
+                .latestVersion()
+                .variables(processVariables)
+                .send();
+    }
 
-    LOG.info(
-        "Publishing message `{}` with correlation key `{}` and variables: {}",
-        messageName,
-        correlationKey,
-        variables);
+    @PostMapping("/message/{messageName}/{correlationKey}")
+    public void publishMessage(
+            @PathVariable String messageName,
+            @PathVariable String correlationKey,
+            @RequestBody ProcessVariables variables) {
 
-    zeebe
-        .newPublishMessageCommand()
-        .messageName(messageName)
-        .correlationKey(correlationKey)
-        .variables(variables)
-        .send();
-  }
+        LOG.info(
+                "Publishing message `{}` with correlation key `{}` and variables: {}",
+                messageName,
+                correlationKey,
+                variables);
+
+        zeebe
+                .newPublishMessageCommand()
+                .messageName(messageName)
+                .correlationKey(correlationKey)
+                .variables(variables)
+                .send();
+    }
 }

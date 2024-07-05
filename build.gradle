@@ -1,0 +1,51 @@
+// build.gradle
+
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+group = 'ee.finestmedia'
+version = '1.0.0-SNAPSHOT'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+//implementation 'org.springframework.boot.spring.boot.starter'
+//implementation 'org.springframework.boot.spring.boot.starter.web'
+//implementation 'org.springdoc.springdoc.openapi.starter.webmvc.ui'
+//implementation 'com.fasterxml.jackson.core.jackson.core'
+//implementation 'io.camunda.spring.spring.boot.starter.camunda'
+
+
+dependencies {
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: '3.3.0'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '3.3.0'
+    implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.2.0'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.17.1'
+    implementation group: 'io.camunda.spring', name: 'spring-boot-starter-camunda', version: '8.5.5'
+
+    // https://mvnrepository.com/artifact/io.camunda/zeebe-bom
+    implementation group: 'io.camunda', name: 'zeebe-bom', version: '8.5.5', ext: 'pom'
+
+//    testImplementation 'org.springframework.boot.spring.boot.starter.test'
+//    testImplementation 'io.camunda.spring.spring.boot.starter.camunda.test'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << '-parameters'
+}
