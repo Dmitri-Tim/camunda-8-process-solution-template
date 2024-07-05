@@ -13,6 +13,7 @@ import io.camunda.zeebe.spring.test.ZeebeSpringTest;
 import java.time.Duration;
 import org.example.camunda.process.solution.facade.ProcessController;
 import org.example.camunda.process.solution.service.MyService;
+import org.example.camunda.process.solution.variable.ProcessVariables;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
