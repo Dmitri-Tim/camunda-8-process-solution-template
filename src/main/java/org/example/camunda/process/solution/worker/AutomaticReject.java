@@ -6,9 +6,9 @@ import org.example.camunda.process.solution.variable.TehikProcessVariables;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AutomaticDecline {
+public class AutomaticReject {
     @JobWorker
-    public TehikProcessVariables declineAutomatically(@VariablesAsType TehikProcessVariables variables) {
+    public TehikProcessVariables rejectAutomatically(@VariablesAsType TehikProcessVariables variables) {
         return variables;
     }
 }
