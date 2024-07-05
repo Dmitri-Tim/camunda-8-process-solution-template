@@ -23,9 +23,6 @@ public class EsimeneWorker {
   public TestVariables esimeneWorker(@VariablesAsType TestVariables variables) {
     LOG.info("Invoking myService with variables: " + variables);
 
-    String result = myService.myOperation(variables.getResult());
-
-    return new TestVariables()
-        .setResult(result); // new object to avoid sending unchanged variables
+    return variables.setResult(myService.myOperation(variables.getResult()));
   }
 }

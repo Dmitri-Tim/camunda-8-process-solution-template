@@ -45,7 +45,7 @@ public class ProcessController {
 
         zeebe
                 .newCreateInstanceCommand()
-                .bpmnProcessId(ProcessConstants.MYMODEL_PROCESS_ID)
+                .bpmnProcessId(ProcessConstants.CONDITIONAL_PROCESS_ID)
                 .latestVersion()
                 .variables(variables)
                 .send();

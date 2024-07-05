@@ -8,28 +8,37 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 @JsonInclude(Include.NON_NULL)
 public class TestVariables {
+    private boolean conditional;
+    private String result;
 
-  private String result;
+    public boolean isConditional() {
+        return conditional;
+    }
 
-  public String getResult() {
-    return result;
-  }
+    public TestVariables setConditional(boolean conditional) {
+        this.conditional = conditional;
+        return this;
+    }
 
-  public TestVariables setResult(String result) {
-    this.result = result;
-    return this;
-  }
+    public String getResult() {
+        return result;
+    }
 
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(
-        this,
-        new MultilineRecursiveToStringStyle() {
-          public ToStringStyle withShortPrefixes() {
-            this.setUseShortClassName(true);
-            this.setUseIdentityHashCode(false);
-            return this;
-          }
-        }.withShortPrefixes());
-  }
+    public TestVariables setResult(String result) {
+        this.result = result;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(
+                this,
+                new MultilineRecursiveToStringStyle() {
+                    public ToStringStyle withShortPrefixes() {
+                        this.setUseShortClassName(true);
+                        this.setUseIdentityHashCode(false);
+                        return this;
+                    }
+                }.withShortPrefixes());
+    }
 }
